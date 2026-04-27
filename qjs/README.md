@@ -5,15 +5,15 @@ A quick-start project demonstrating CI/CD with SonarQube code quality analysis f
 ## Project Structure
 
 ```
-sonar-express-jenkins/
-├── app/                  # Your Express.ts application
+lpu/
+├── qjs/                  # Your Express.ts application
 │   ├── src/
 │   │   └── index.ts     # Simple Express server with routes
 │   ├── package.json
 │   ├── tsconfig.json
+│   ├── Jenkinsfile      # Declarative pipeline for Jenkins
+│   ├── compose.yml      # Spins up SonarQube + Jenkins
 │   └── ...
-├── Jenkinsfile          # Declarative pipeline for Jenkins
-├── docker-compose.yml   # Spins up SonarQube + Jenkins
 └── README.md
 ```
 
@@ -22,8 +22,8 @@ sonar-express-jenkins/
 ### 1. Start Services with Docker Compose
 
 ```bash
-cd sonar-express-jenkins
-docker-compose up -d
+cd lpu/qjs
+docker compose up -d
 ```
 
 - **SonarQube**: http://localhost:9000 (login: admin / admin - change password on first login)
@@ -89,7 +89,7 @@ In SonarQube UI (http://localhost:9000):
 
 ## Customization
 
-- **Add more code**: Edit `app/src/index.ts` — Sonar will detect issues like unused variables, complexity, etc.
+- **Add more code**: Edit `qjs/src/index.ts` — Sonar will detect issues like unused variables, complexity, etc.
 - **Quality Gate**: Customize in SonarQube (Quality Gates → Create)
 - **Advanced**: Add Docker build stage, deploy to Kubernetes, etc.
 - **Real GitHub Webhook** (optional, instead of polling): In GitHub repo → Settings → Webhooks → Add webhook to Jenkins (requires public Jenkins URL).

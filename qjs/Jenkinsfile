@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:20-alpine'
-            args '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'  // If needed for future Docker builds
+            args '--network cicd -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'
         }
     }
 
@@ -12,6 +12,8 @@ pipeline {
         // Project key - matches SonarQube project
         SONAR_PROJECT_KEY = 'sonar-express-ts-demo'
         SONAR_PROJECT_NAME = 'Sonar Express TS Demo'
+        // SonarQube auth token - create in Jenkins as Secret text with ID 'sonar-token'
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -24,7 +26,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                dir('app') {
+                dir('qjs') {
                     sh 'npm install'
                 }
             }
@@ -32,7 +34,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir('app') {
+                dir('qjs') {
                     sh 'npm run build'
                 }
             }
@@ -40,23 +42,22 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('app') {
+                dir('qjs') {
                     // Prepare Alpine for sonar-scanner (install deps)
                     sh 'apk add --no-cache curl unzip openjdk21-jre'
-                    // Download and install SonarScanner CLI (latest stable)
+                    // Download and install SonarScanner CLI (generic/Java version — works on Alpine/musl)
                     sh '''
-                        curl -sSLo /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+                        curl -sSLo /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610.zip
                         unzip -q /tmp/sonar-scanner.zip -d /opt
-                        export PATH=$PATH:/opt/sonar-scanner-6.2.1.4610-linux-x64/bin
                     '''
                     // Run analysis (using full path to avoid PATH issues in some envs)
                     sh '''
-                        /opt/sonar-scanner-6.2.1.4610-linux-x64/bin/sonar-scanner \
+                        /opt/sonar-scanner-6.2.1.4610/bin/sonar-scanner \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.projectName="${SONAR_PROJECT_NAME}" \
                         -Dsonar.sources=src \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.token=${SONAR_TOKEN} \
                         -Dsonar.exclusions=node_modules/**,dist/** \
                         -Dsonar.typescript.tsconfigPath=tsconfig.json
                     '''
@@ -75,7 +76,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                dir('app') {
+                dir('qjs') {
                     sh 'npm test'
                 }
             }

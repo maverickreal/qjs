@@ -10,11 +10,13 @@ services:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - cicd
     # restart: unless-stopped
 
   jenkins:
     image: jenkins/jenkins:lts
-    container_name: jenkins
+    container_name: jenkinsC
     ports:
       - "8080:8080"
       - "50000:50000"
@@ -22,10 +24,16 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock  # For Docker-in-Docker if needed
       - /usr/bin/docker:/usr/bin/docker
-    environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    # environment:
+    #   - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    networks:
+      - cicd
     # restart: unless-stopped
     user: root  # For Docker socket access
+
+networks:
+  cicd:
+    name: cicd
 
 volumes:
   sonarqube_data:
