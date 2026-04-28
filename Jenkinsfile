@@ -13,7 +13,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'sonar-express-ts-demo'
         SONAR_PROJECT_NAME = 'Sonar Express TS Demo'
         // SonarQube auth token - create in Jenkins as Secret text with ID 'sonar-token'
-        SONAR_TOKEN = credentials('sonar-token')
+        SONAR_TOKEN = credentials('SONAR_TOKEN')
     }
 
     stages {
