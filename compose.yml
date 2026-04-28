@@ -1,7 +1,7 @@
 services:
   sonarqube:
     image: sonarqube
-    container_name: sonarqubeC
+    container_name: cSonarqube
     ports:
       - "9000:9000"
     environment:
@@ -11,12 +11,12 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
     networks:
-      - cicd
+      - jsN
     # restart: unless-stopped
 
   jenkins:
     image: jenkins/jenkins:lts
-    container_name: jenkinsC
+    container_name: cJenkins
     ports:
       - "8080:8080"
       - "50000:50000"
@@ -27,13 +27,13 @@ services:
     # environment:
     #   - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
     networks:
-      - cicd
+      - jsN
     # restart: unless-stopped
     user: root  # For Docker socket access
 
 networks:
-  cicd:
-    name: cicd
+  jsN:
+    name: jsN
 
 volumes:
   sonarqube_data:
