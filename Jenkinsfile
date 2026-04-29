@@ -26,7 +26,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install --registry http://nexus:8081/repository/npmGroup'
+                sh 'npm install --registry http://nexus:8081/repository/npm-group'
             }
         }
 
