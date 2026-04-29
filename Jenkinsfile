@@ -73,7 +73,7 @@ pipeline {
         
         stage('Publish artifact') {
             steps {
-                withCredentials([usernamePassword(credentialId: 'nexusCreds', usernameVariable:
+                withCredentials([usernamePassword(credentialsId: 'nexusCreds', usernameVariable:
                 'userVar', passwordVariable: 'codeVar')]) {
                     sh '''
                     echo _auth=$(echo -n ${userVar}:${codeVar} | base64) >> .npmrc
