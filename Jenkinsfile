@@ -26,7 +26,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'npm install --registry http://cNexus:8081/repository/npmGroup'
             }
         }
 
@@ -43,7 +43,8 @@ pipeline {
                     sh 'apk add --no-cache curl unzip openjdk21-jre'
                     // Download and install SonarScanner CLI (generic/Java version — works on Alpine/musl)
                     sh '''
-                        curl -sSLo /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610.zip
+                        curl -sSLo /tmp/sonar-scanner.zip \
+                        https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610.zip
                         unzip -q /tmp/sonar-scanner.zip -d /opt
                     '''
                     // Run analysis (using full path to avoid PATH issues in some envs)
@@ -66,6 +67,18 @@ pipeline {
                 // Wait for SonarQube quality gate (requires SonarQube plugin in Jenkins)
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        
+        stage('Publish artifact') {
+            steps {
+                withCredentials([usernamePassword(credentialId: 'nexusCreds', usernameVariable:
+                'userVar', passwordVariable: 'codeVar')]) {
+                    sh '''
+                    echo _auth=$(echo -n ${userVar}:${codeVar} | base64) >> .npmrc
+                    npm publish --registry http://cNexus:8081/repository/npm-internal/
+                    '''
                 }
             }
         }

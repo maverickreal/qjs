@@ -1,4 +1,14 @@
 services:
+  nexus:
+    image: sonatype/nexus3
+    container_name: cNexus
+    ports:
+      - "8081:8081"
+    volumes:
+      - nexus_data:/nexus-data
+    networks:
+      - jsN
+
   sonarqube:
     image: sonarqube
     container_name: cSonarqube
@@ -40,3 +50,4 @@ volumes:
   sonarqube_extensions:
   sonarqube_logs:
   jenkins_home:
+  nexus_data:
