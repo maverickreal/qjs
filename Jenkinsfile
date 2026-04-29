@@ -26,7 +26,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install --registry http://cNexus:8081/repository/npmGroup'
+                sh 'npm install --registry http://nexus:8081/repository/npmGroup'
             }
         }
 
@@ -77,7 +77,7 @@ pipeline {
                 'userVar', passwordVariable: 'codeVar')]) {
                     sh '''
                     echo _auth=$(echo -n ${userVar}:${codeVar} | base64) >> .npmrc
-                    npm publish --registry http://cNexus:8081/repository/npm-internal/
+                    npm publish --registry http://nexus:8081/repository/npm-internal/
                     '''
                 }
             }
