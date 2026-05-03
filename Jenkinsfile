@@ -73,11 +73,21 @@ pipeline {
         
         stage('Publish artifact') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'nexusCreds', usernameVariable:
-                'userVar', passwordVariable: 'codeVar')]) {
+                withCredentials([usernamePassword(credentialsId: 'nexusCreds', usernameVariable: 'userVar', passwordVariable: 'codeVar')]) {
                     sh '''
-                    echo _auth=$(echo -n ${userVar}:${codeVar} | base64) >> .npmrc
-                    npm publish --registry http://nexus:8081/repository/npm-internal/
+                        # Remove any existing .npmrc to avoid conflicts
+                        rm -f .npmrc
+                        
+                        # Generate base64 token and ensure no newlines are included
+                        AUTH_TOKEN=$(echo -n "${userVar}:${codeVar}" | base64 /* | tr -d '\\n'*/)
+                        
+                        # Write scoped configuration to .npmrc
+                        echo "registry=http://nexus:8081/repository/npm-internal/" > .npmrc
+                        echo "//nexus:8081/repository/npm-internal/:_auth=${AUTH_TOKEN}" >> .npmrc
+                        // echo "//nexus:8081/repository/npm-internal/:always-auth=true" >> .npmrc
+                        // echo "//nexus:8081/repository/npm-internal/:email=jenkins@example.com" >> .npmrc
+                        
+                        npm publish
                     '''
                 }
             }
