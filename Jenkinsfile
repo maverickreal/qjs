@@ -85,6 +85,8 @@ pipeline {
                         echo "registry=http://nexus:8081/repository/npm-internal/" > .npmrc
                         echo "//nexus:8081/repository/npm-internal/:_auth=${AUTH_TOKEN}" >> .npmrc
                         
+                        npm version patch --no-git-tag-version
+                        
                         npm publish
                     '''
                 }
